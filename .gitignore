@@ -39,3 +39,14 @@ coverage/
 # Build
 build/
 dist/
+
+# Python venv
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Package lock (optional — keep if you want reproducible installs)
+# package-lock.json

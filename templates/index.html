@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CV Generator — Build ATS-Friendly Resumes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .cv-preview iframe { border: none; width: 100%; height: 100%; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <span class="font-bold text-lg text-gray-900">CVForge</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-gray-500 hidden sm:block">ATS-Optimized • PDF Export</span>
+        <button onclick="exportPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Export PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" style="grid-template-columns: 520px 1fr;">
+
+      <!-- LEFT: Form Panel -->
+      <div class="space-y-4 overflow-auto max-h-[calc(100vh-100px)] pr-1">
+
+        <!-- Personal Info -->
+        <section class="bg-white rounded-xl border border-gray-200 p-5">
+          <h2 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-6 h-6 bg-indigo-100 text-indigo-600 text-xs font-bold rounded-full flex items-center justify-center">1</span>
+            Personal Information
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-medium text-gray-600 mb-1">Full Name</label>
+              <input type="text" id="name" placeholder="Budi Santoso" oninput="debouncedPreview()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Job Title</label>
+              <input type="text" id="title" placeholder="Senior Frontend Engineer" oninput="debouncedPreview()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Location</label>
+              <input type="text" id="location" placeholder="Jakarta, Indonesia" oninput="debouncedPreview()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Email</label>
+              <input type="email" id="email" placeholder="budi@email.com" oninput="debouncedPreview()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+              <input type="tel" id="phone" placeholder="+62 812 3456 7890" oninput="debouncedPreview()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-medium text-gray-600 mb-1">LinkedIn / Website</label>
+              <input type="url" id="website" placeholder="https://linkedin.com/in/budi-santoso" oninput="debouncedPreview()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Summary + AI Assist -->
+        <section class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <span class="w-6 h-6 bg-indigo-100 text-indigo-600 text-xs font-bold rounded-full flex items-center justify-center">2</span>
+              Professional Summary
+            </h2>
+            <button onclick="generateAI('summary')" id="btn-summary" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-lg border border-indigo-200 transition flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              AI Assist
+            </button>
+          </div>
+          <textarea id="summary" rows="3" placeholder="Ceritakan latar belakang profesional, kekuatan utama, dan tujuan karir dalam 3-4 kalimat..." oninput="debouncedPreview()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition resize-none"></textarea>
+          <p class="text-xs text-gray-400 mt-1">Atau klik AI Assist — kami generate ringkasan profesional dari nama, posisi &amp; keahlian. Jika belum ada data, cukup isi nama &amp; judul posisi, AI akan membantu.</p>
+        </section>
+
+        <!-- Work Experience + AI Assist -->
+        <section class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <span class="w-6 h-6 bg-indigo-100 text-indigo-600 text-xs font-bold rounded-full flex items-center justify-center">3</span>
+              Work Experience
+            </h2>
+            <button onclick="generateAIForSelected('experience')" id="btn-exp" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-lg border border-indigo-200 transition flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              AI Assist Selected
+            </button>
+          </div>
+          <p class="text-xs text-gray-400 mb-3">Isi judul posisi &amp; perusahaan, lalu klik AI Assist Selected untuk generate poin pencapaian kerja.</p>
+          <div id="experience-list" class="space-y-3"></div>
+          <button onclick="addExperience()" class="mt-3 w-full border-2 border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 text-sm font-medium py-2 rounded-lg transition-all flex items-center justify-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Position
+          </button>
+        </section>
+
+        <!-- Education -->
+        <section class="bg-white rounded-xl border border-gray-200 p-5">
+          <h2 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-6 h-6 bg-indigo-100 text-indigo-600 text-xs font-bold rounded-full flex items-center justify-center">4</span>
+            Education
+          </h2>
+          <div id="education-list" class="space-y-3"></div>
+          <button onclick="addEducation()" class="mt-3 w-full border-2 border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 text-sm font-medium py-2 rounded-lg transition-all flex items-center justify-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Education
+          </button>
+        </section>
+
+        <!-- Skills + AI Assist -->
+        <section class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <span class="w-6 h-6 bg-indigo-100 text-indigo-600 text-xs font-bold rounded-full flex items-center justify-center">5</span>
+              Skills
+            </h2>
+            <button onclick="generateAI('skills')" id="btn-skills" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-lg border border-indigo-200 transition flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              AI Suggest
+            </button>
+          </div>
+          <div id="skills-list" class="space-y-2"></div>
+          <button onclick="addSkill()" class="mt-3 w-full border-2 border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 text-sm font-medium py-2 rounded-lg transition-all flex items-center justify-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Skill Category
+          </button>
+        </section>
+
+      </div>
+
+      <!-- RIGHT: Live Preview -->
+      <div class="bg-gray-100 rounded-xl border border-gray-200 overflow-hidden" style="min-height: 700px;">
+        <div class="bg-gray-200 px-4 py-2 flex items-center justify-between border-b border-gray-300">
+          <div class="flex items-center gap-2">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-400"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+              <div class="w-3 h-3 rounded-full bg-green-400"></div>
+            </div>
+            <span class="text-xs text-gray-500 ml-2">Live Preview — A4</span>
+          </div>
+          <button onclick="exportPDF()" class="text-xs text-indigo-600 font-medium hover:text-indigo-700 flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Download
+          </button>
+        </div>
+        <div class="p-4 overflow-auto" style="height: calc(100vh - 140px);">
+          <iframe id="preview-frame" class="w-full bg-white shadow-xl rounded" style="min-height: 900px; transform-origin: top center; transform: scale(0.85);" sandbox="allow-same-origin"></iframe>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // ── State ─────────────────────────────────────────────────────────────
+    let previewTimer = null;
+
+    function getFormData() {
+      const getItems = (id) => {
+        const cont = document.getElementById(id);
+        return Array.from(cont.querySelectorAll('.item-block')).map(el => ({
+          id: el.dataset.id,
+          ...Object.fromEntries(Array.from(el.querySelectorAll('input,textarea')).map(i => [i.dataset.field || i.id.replace(/-/g,'_'), i.value]))
+        })).filter(x => x.title || x.name);
+      };
+      const skills = Array.from(document.getElementById('skills-list').querySelectorAll('.item-block')).map(el => ({
+        category: el.querySelector('[data-field="category"]')?.value || '',
+        items: Array.from(el.querySelectorAll('.skill-tag')).map(t => t.textContent.replace('×','').trim()).filter(Boolean)
+      })).filter(x => x.category || x.items?.length);
+
+      return {
+        name:        document.getElementById('name').value,
+        title:       document.getElementById('title').value,
+        location:    document.getElementById('location').value,
+        email:       document.getElementById('email').value,
+        phone:       document.getElementById('phone').value,
+        website:     document.getElementById('website').value,
+        summary:     document.getElementById('summary').value,
+        experience:  getItems('experience-list'),
+        education:   getItems('education-list'),
+        skills:      skills,
+        languages:   [],
+        certs:       [],
+      };
+    }
+
+    async function updatePreview() {
+      const iframe = document.getElementById('preview-frame');
+      try {
+        const res = await fetch('/api/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(getFormData())
+        });
+        const { html } = await res.json();
+        iframe.srcdoc = html;
+      } catch(e) { console.error('preview error', e); }
+    }
+
+    function debouncedPreview() {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(updatePreview, 400);
+    }
+
+    async function exportPDF() {
+      const btn = event.target.closest('button');
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Generating...';
+      try {
+        const res = await fetch('/api/export-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(getFormData())
+        });
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url;
+        a.download = `CV_${document.getElementById('name').value.replace(/ /g,'_') || 'resume'}.pdf`;
+        a.click(); URL.revokeObjectURL(url);
+      } catch(e) { alert('PDF export failed: ' + e.message); }
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> Export PDF';
+    }
+
+    // ── Builder helpers ───────────────────────────────────────────────────
+    function uid() { return Math.random().toString(36).slice(2); }
+
+    function expHTML(exp = {}) {
+      return `<div class="item-block border border-gray-200 rounded-lg p-3 space-y-2 bg-gray-50" data-id="${exp.id || uid()}">
+        <div class="flex justify-between items-start gap-2">
+          <input type="text" data-field="title" value="${esc(exp.title||'')}" placeholder="Job Title / Role" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+          <input type="text" data-field="company" value="${esc(exp.company||'')}" placeholder="Company" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+          <button onclick="removeBlock(this)" class="text-gray-400 hover:text-red-500 transition ml-1 shrink-0">×</button>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" data-field="start_date" value="${esc(exp.start_date||'')}" placeholder="Jan 2022" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+          <span class="text-gray-400 self-center text-xs">→</span>
+          <input type="text" data-field="end_date" value="${esc(exp.end_date||'')}" placeholder="Present" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+        </div>
+        <textarea data-field="description" rows="3" placeholder="• Led migration to React 18, reducing load time by 40%\n• Built CI/CD pipeline with GitHub Actions\n• Mentored 3 junior developers" oninput="debouncedPreview()" class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm resize-none focus:ring-1 focus:ring-indigo-500 outline-none">${esc(exp.description||'')}</textarea>
+      </div>`;
+    }
+
+    function eduHTML(edu = {}) {
+      return `<div class="item-block border border-gray-200 rounded-lg p-3 space-y-2 bg-gray-50" data-id="${edu.id || uid()}">
+        <div class="flex items-start gap-2">
+          <div class="flex-1 space-y-2">
+            <input type="text" data-field="degree" value="${esc(edu.degree||'')}" placeholder="Bachelor of Computer Science" oninput="debouncedPreview()" class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+            <input type="text" data-field="school" value="${esc(edu.school||'')}" placeholder="Universitas Indonesia" oninput="debouncedPreview()" class="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+          </div>
+          <button onclick="removeBlock(this)" class="text-gray-400 hover:text-red-500 transition ml-1 shrink-0">×</button>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" data-field="start_date" value="${esc(edu.start_date||'')}" placeholder="2018" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+          <span class="text-gray-400 self-center text-xs">→</span>
+          <input type="text" data-field="end_date" value="${esc(edu.end_date||'')}" placeholder="2022" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+          <input type="text" data-field="gpa" value="${esc(edu.gpa||'')}" placeholder="GPA 3.8/4.0" oninput="debouncedPreview()" class="w-28 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+        </div>
+      </div>`;
+    }
+
+    function skillHTML(sk = {}) {
+      const tags = (sk.items || []).map(t => `<span class="skill-tag px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs rounded-full border border-indigo-200 cursor-pointer hover:bg-red-100 hover:text-red-600 hover:border-red-300 transition" onclick="this.remove(); debouncedPreview()">${esc(t)}</span>`).join('');
+      return `<div class="item-block border border-gray-200 rounded-lg p-3 space-y-2 bg-gray-50" data-id="${sk.id || uid()}">
+        <div class="flex gap-2 items-center">
+          <input type="text" data-field="category" value="${esc(sk.category||'')}" placeholder="Technical Skills" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+          <button onclick="removeBlock(this)" class="text-gray-400 hover:text-red-500 transition ml-1 shrink-0">×</button>
+        </div>
+        <div class="flex flex-wrap gap-1 min-h-[28px] items-center" id="skill-tags-${sk.id || uid()}">
+          ${tags}
+          <button type="button" onclick="promptAddTag(this)" class="px-2 py-0.5 text-xs text-indigo-500 hover:text-indigo-700 border border-dashed border-indigo-300 rounded-full hover:bg-indigo-50 transition">+ Add</button>
+        </div>
+      </div>`;
+    }
+
+    function langHTML(lg = {}) {
+      return `<div class="item-block flex gap-2 items-center border border-gray-200 rounded-lg p-2 bg-gray-50" data-id="${lg.id || uid()}">
+        <input type="text" data-field="name" value="${esc(lg.name||'')}" placeholder="English" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+        <select data-field="level" onchange="debouncedPreview()" class="px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none bg-white">
+          <option value="Native" ${(lg.level||'').includes('Native')?'selected':''}>Native</option>
+          <option value="Fluent" ${(lg.level||'').includes('Fluent')?'selected':''}>Fluent</option>
+          <option value="Advanced" ${(lg.level||'').includes('Advanced')?'selected':''}>Advanced</option>
+          <option value="Intermediate" ${(lg.level||'').includes('Intermediate')?'selected':''}>Intermediate</option>
+          <option value="Basic" ${(lg.level||'').includes('Basic')?'selected':''}>Basic</option>
+        </select>
+        <button onclick="removeBlock(this)" class="text-gray-400 hover:text-red-500 transition">×</button>
+      </div>`;
+    }
+
+    function certHTML(cr = {}) {
+      return `<div class="item-block flex gap-2 items-center border border-gray-200 rounded-lg p-2 bg-gray-50" data-id="${cr.id || uid()}">
+        <input type="text" data-field="name" value="${esc(cr.name||'')}" placeholder="AWS Solutions Architect" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+        <input type="text" data-field="issuer" value="${esc(cr.issuer||'')}" placeholder="Amazon Web Services" oninput="debouncedPreview()" class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+        <input type="text" data-field="year" value="${esc(cr.year||'')}" placeholder="2023" oninput="debouncedPreview()" class="w-20 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-indigo-500 outline-none" />
+        <button onclick="removeBlock(this)" class="text-gray-400 hover:text-red-500 transition">×</button>
+      </div>`;
+    }
+
+    function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function removeBlock(btn) { btn.closest('.item-block').remove(); debouncedPreview(); }
+
+    // ── AI Generation ────────────────────────────────────────────────────
+    async function generateAI(type) {
+      const btn = document.getElementById('btn-' + type);
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Generating...';
+      try {
+        const form = getFormData();
+        let ctx = {};
+        if (type === 'summary') {
+          ctx = {
+            name: form.name || 'Professional',
+            title: form.title || 'Software Engineer',
+            skills: (form.skills||[]).flatMap(s => s.items||[]).join(', ') || 'Software Development',
+            experience: (form.experience||[]).map(e => `${e.title} at ${e.company}`).join('; ') || 'various roles'
+          };
+        } else if (type === 'skills') {
+          ctx = {
+            title: form.title || 'Software Engineer',
+            skills: (form.skills||[]).flatMap(s => s.items||[]).join(', ') || ''
+          };
+        }
+        const res = await fetch('/api/ai-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: type, context: ctx })
+        });
+        const { success, content } = await res.json();
+        if (success && content) {
+          if (type === 'summary') {
+            document.getElementById('summary').value = content;
+          } else if (type === 'skills') {
+            const [cat, ...items] = content.split(':');
+            if (cat && items.length) {
+              addSkill();
+              const blocks = document.querySelectorAll('#skills-list .item-block');
+              const last = blocks[blocks.length - 1];
+              last.querySelector('[data-field="category"]').value = cat.trim();
+              items.join(':').split(',').forEach(s => {
+                if (s.trim()) addSkillTagTo(last.querySelector('.flex.flex-wrap'), s.trim());
+              });
+            }
+          }
+          debouncedPreview();
+        } else {
+          alert('AI generation failed. Check your API keys in .env');
+        }
+      } catch(e) { alert('AI error: ' + e.message); }
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> AI ' + (type === 'summary' ? 'Assist' : 'Suggest');
+    }
+
+    async function generateAIForSelected(type) {
+      const blocks = document.querySelectorAll('#experience-list .item-block');
+      // Use first block that has a title filled in
+      let target = null;
+      for (const b of blocks) {
+        const t = b.querySelector('[data-field="title"]')?.value;
+        if (t) { target = b; break; }
+      }
+      if (!target) { alert('Isi dulu judul posisi & perusahaan, lalu klik AI Assist Selected.'); return; }
+
+      const btn = document.getElementById('btn-exp');
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Generating...';
+      try {
+        const title = target.querySelector('[data-field="title"]').value;
+        const company = target.querySelector('[data-field="company"]').value;
+        const description = target.querySelector('[data-field="description"]').value;
+        const res = await fetch('/api/ai-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'experience', context: { title, company, description } })
+        });
+        const { success, content } = await res.json();
+        if (success && content) {
+          target.querySelector('[data-field="description"]').value = content;
+          debouncedPreview();
+        } else {
+          alert('AI generation failed. Check your API keys in .env');
+        }
+      } catch(e) { alert('AI error: ' + e.message); }
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> AI Assist Selected';
+    }
+
+    function addSkillTagTo(container, text) {
+      const span = document.createElement('span');
+      span.className = 'skill-tag px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs rounded-full border border-indigo-200 cursor-pointer hover:bg-red-100 hover:text-red-600 hover:border-red-300 transition';
+      span.textContent = text;
+      span.onclick = () => { span.remove(); debouncedPreview(); };
+      container.appendChild(span);
+    }
+
+    function promptAddTag(btn) {
+      const tag = prompt('Add skill:');
+      if (tag && tag.trim()) {
+        const span = document.createElement('span');
+        span.className = 'skill-tag px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs rounded-full border border-indigo-200 cursor-pointer hover:bg-red-100 hover:text-red-600 hover:border-red-300 transition';
+        span.textContent = tag.trim();
+        span.onclick = () => { span.remove(); debouncedPreview(); };
+        btn.before(span);
+        debouncedPreview();
+      }
+    }
+
+    function addExperience() {
+      document.getElementById('experience-list').insertAdjacentHTML('beforeend', expHTML());
+    }
+    function addEducation() {
+      document.getElementById('education-list').insertAdjacentHTML('beforeend', eduHTML());
+    }
+    function addSkill() {
+      document.getElementById('skills-list').insertAdjacentHTML('beforeend', skillHTML());
+    }
+    function addLang() {}
+    function addCert() {}
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    addExperience(); addEducation(); addSkill();
+    updatePreview();
+  </script>
+
+</body>
+</html>

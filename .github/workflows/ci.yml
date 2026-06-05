@@ -1,111 +1,63 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+    branches: [main, master]
 
 jobs:
-  test:
+  lint-and-test:
+    name: Lint & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Run lint check
-        run: npx eslint src/ || true
-      
-      - name: Test Docker build
-        run: docker build -t cv-generator:test .
 
-  security:
+      - name: Lint
+        run: npx eslint src/ --ignore-pattern 'node_modules' || true
+
+      - name: Health check test
+        run: |
+          node src/server.js &
+          SERVER_PID=$!
+          sleep 3
+          curl -sf http://localhost:8083/health || (kill $SERVER_PID 2>/dev/null; exit 1)
+          kill $SERVER_PID 2>/dev/null
+          echo "✅ Health check passed"
+
+  docker-build:
+    name: Build Docker Image
     runs-on: ubuntu-latest
-    needs: test
+    needs: lint-and-test
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Run Trivy security scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-      
-      - name: Upload scan results
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
 
-  build-and-push:
-    runs-on: ubuntu-latest
-    needs: [test, security]
-    if: github.event_name == 'push'
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-      
-      - name: Build and push
+
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: false
+          load: true
+          tags: cv-generator:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd ~/cv-generator || exit 1
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            docker-compose down
-            docker-compose up -d
-            docker system prune -f
+      - name: Verify image runs
+        run: |
+          docker run -d --name cv-test -p 8084:8083 -e PORT=8083 cv-generator:ci
+          sleep 5
+          curl -sf http://localhost:8084/health || (docker logs cv-test; exit 1)
+          docker stop cv-test
+          echo "✅ Docker image verified"

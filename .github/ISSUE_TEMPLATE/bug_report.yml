@@ -1,0 +1,72 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please fill out the sections below to help us fix it quickly.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect to happen?
+      placeholder: "When I click 'Generate PDF', the page shows a 500 error instead of downloading the PDF."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Go to the CV editor
+        2. Fill in name and experience
+        3. Click "Generate PDF"
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+      placeholder: "PDF should download successfully with the CV content."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: app-mode
+    attributes:
+      label: App Mode
+      description: Which server/app were you using?
+      options:
+        - Node.js / Express (src/server.js)
+        - Python / Flask (app.py)
+        - Docker
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser / Environment
+      description: Browser name and version, or server environment details
+      placeholder: "Chrome 125, Node 20.11, Ubuntu 22.04"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Paste any error messages or stack traces (redact sensitive info)
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Screenshots, config details, or anything else relevant
