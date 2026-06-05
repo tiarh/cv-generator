@@ -6,12 +6,33 @@
   <title>CV Wizard | CV Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .step-item.active .step-circle { background: #3b82f6; border-color: #3b82f6; color: white; transform: scale(1.1); }
+    .step-item.completed .step-circle { background: #10b981; border-color: #10b981; color: white; }
+    .step-item .step-circle { transition: all 0.3s ease; }
+    .wizard-step { animation: fadeInUp 0.4s ease; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .input-group:focus-within label { color: #3b82f6; }
+    .input-group:focus-within input, .input-group:focus-within textarea { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .btn-loading { pointer-events: none; opacity: 0.7; }
+    .btn-loading::after { content: ''; display: inline-block; width: 16px; height: 16px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; margin-left: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .auto-save-indicator { font-size: 12px; color: #10b981; opacity: 0; transition: opacity 0.3s; }
+    .auto-save-indicator.show { opacity: 1; }
+    .skill-chip { animation: popIn 0.2s ease; }
+    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .progress-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 min-h-screen">
 
+  <!-- Toast notifications -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
   <!-- Header -->
-  <header class="py-4 px-8 border-b border-white/10">
+  <header class="py-4 px-4 md:px-8 border-b border-white/10">
     <div class="max-w-4xl mx-auto flex justify-between items-center">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -22,194 +43,210 @@
         <span class="text-white font-bold text-lg">CV Generator</span>
       </div>
       <div class="flex items-center gap-4">
-        <span class="text-blue-300 text-sm" id="templateLabel">Template: <span class="text-white font-semibold capitalize"><%= template.replace('ats-', '') %></span></span>
-        <a href="/" class="text-blue-300 hover:text-white text-sm transition">← Back</a>
+        <span class="text-blue-300 text-xs md:text-sm" id="templateLabel">Template: <span class="text-white font-semibold capitalize"><%= template.replace('ats-', '') %></span></span>
+        <a href="/" class="text-blue-300 hover:text-white text-sm transition flex items-center gap-1">← Home</a>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-4xl mx-auto px-8 py-8">
+  <main class="max-w-4xl mx-auto px-4 md:px-8 py-6">
     
-    <!-- Progress Steps -->
-    <div class="mb-8">
-      <div class="flex items-center justify-center gap-2" id="progressBar">
-        <div class="step-item" data-step="1">
-          <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold text-sm border-2 border-blue-400">1</div>
-          <span class="text-blue-300 text-xs mt-1 block text-center">Personal</span>
-        </div>
-        <div class="w-12 h-0.5 bg-gray-600"></div>
-        <div class="step-item" data-step="2">
-          <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-400 flex items-center justify-center font-semibold text-sm border-2 border-gray-600">2</div>
-          <span class="text-gray-500 text-xs mt-1 block text-center">Experience</span>
-        </div>
-        <div class="w-12 h-0.5 bg-gray-600"></div>
-        <div class="step-item" data-step="3">
-          <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-400 flex items-center justify-center font-semibold text-sm border-2 border-gray-600">3</div>
-          <span class="text-gray-500 text-xs mt-1 block text-center">Education</span>
-        </div>
-        <div class="w-12 h-0.5 bg-gray-600"></div>
-        <div class="step-item" data-step="4">
-          <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-400 flex items-center justify-center font-semibold text-sm border-2 border-gray-600">4</div>
-          <span class="text-gray-500 text-xs mt-1 block text-center">Skills</span>
-        </div>
-        <div class="w-12 h-0.5 bg-gray-600"></div>
-        <div class="step-item" data-step="5">
-          <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-400 flex items-center justify-center font-semibold text-sm border-2 border-gray-600">5</div>
-          <span class="text-gray-500 text-xs mt-1 block text-center">Summary</span>
-        </div>
+    <!-- Progress Overview -->
+    <div class="mb-6 bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/10">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-white/80 text-sm font-medium" id="progressText">Step 1 of 5</span>
+        <span class="text-blue-300 text-sm font-semibold" id="progressPercent">20%</span>
+      </div>
+      <div class="w-full bg-white/20 rounded-full h-2 overflow-hidden">
+        <div id="progressBar" class="progress-fill bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full" style="width: 20%"></div>
       </div>
     </div>
 
-    <!-- Wizard Forms -->
+    <!-- Steps -->
+    <div class="mb-8">
+      <div class="flex items-center justify-center gap-1 md:gap-2" id="stepsIndicator">
+        <% [1,2,3,4,5].forEach((step, i) => { %>
+        <div class="step-item <%= i === 0 ? 'active' : '' %>" data-step="<%= step %>">
+          <div class="step-circle w-8 h-8 md:w-10 md:h-10 rounded-full border-2 flex items-center justify-center font-semibold text-xs md:text-sm">
+            <%= step %>
+          </div>
+          <% const labels = ['Personal', 'Experience', 'Education', 'Skills', 'Finish']; %>
+          <span class="text-gray-400 text-[10px] md:text-xs mt-1 block text-center"><%= labels[i] %></span>
+        </div>
+        <% if (i < 4) { %>
+        <div class="w-3 md:w-8 h-0.5 bg-gray-600 line-connector"></div>
+        <% } %>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Wizard Card -->
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
       
-      <!-- Step 1: Personal Info -->
+      <!-- Auto-save indicator -->
+      <div class="px-6 pt-4 flex justify-end">
+        <span class="auto-save-indicator" id="autoSaveIndicator">💾 Saved as draft</span>
+      </div>
+
+      <!-- STEP 1: Personal -->
       <div class="wizard-step" id="step-1">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-          <h2 class="text-xl font-bold text-white">Personal Information</h2>
-          <p class="text-blue-100 text-sm mt-1">Tell us about yourself</p>
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 md:px-8 py-5">
+          <h2 class="text-lg md:text-xl font-bold text-white">👤 Personal Information</h2>
+          <p class="text-blue-100 text-sm mt-1">Let's start with the basics</p>
         </div>
-        <div class="p-8 space-y-6">
-          <div class="grid md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-              <input type="text" id="fullName" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="John Doe" value="<%= savedData?.personalInfo?.fullName || '' %>">
+        <div class="p-6 md:p-8 space-y-5">
+          <div class="grid md:grid-cols-2 gap-5">
+            <div class="input-group">
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Full Name <span class="text-red-500">*</span></label>
+              <input type="text" id="fullName" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none transition bg-gray-50 focus:bg-white" placeholder="John Doe" required value="<%= savedData?.personalInfo?.fullName || '' %>" oninput="markChanged()">
             </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Job Title *</label>
-              <input type="text" id="jobTitle" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="Software Engineer" value="<%= savedData?.personalInfo?.jobTitle || '' %>">
+            <div class="input-group">
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Job Title <span class="text-red-500">*</span></label>
+              <input type="text" id="jobTitle" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none transition bg-gray-50 focus:bg-white" placeholder="Software Engineer" required value="<%= savedData?.personalInfo?.jobTitle || '' %>" oninput="markChanged()">
             </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
-              <input type="email" id="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="john@example.com" value="<%= savedData?.personalInfo?.email || '' %>">
+            <div class="input-group">
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email <span class="text-red-500">*</span></label>
+              <input type="email" id="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none transition bg-gray-50 focus:bg-white" placeholder="john@example.com" required value="<%= savedData?.personalInfo?.email || '' %>" oninput="markChanged()">
             </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-              <input type="tel" id="phone" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="+62 812-3456-7890" value="<%= savedData?.personalInfo?.phone || '' %>">
+            <div class="input-group">
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Phone</label>
+              <input type="tel" id="phone" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none transition bg-gray-50 focus:bg-white" placeholder="+62 812-3456-7890" value="<%= savedData?.personalInfo?.phone || '' %>" oninput="markChanged()">
             </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Location</label>
-              <input type="text" id="location" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="Jakarta, Indonesia" value="<%= savedData?.personalInfo?.location || '' %>">
+            <div class="input-group">
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Location</label>
+              <input type="text" id="location" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none transition bg-gray-50 focus:bg-white" placeholder="Jakarta, Indonesia" value="<%= savedData?.personalInfo?.location || '' %>" oninput="markChanged()">
             </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">LinkedIn / Portfolio URL</label>
-              <input type="url" id="linkedin" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="https://linkedin.com/in/johndoe" value="<%= savedData?.personalInfo?.linkedin || '' %>">
+            <div class="input-group">
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">LinkedIn / Website</label>
+              <input type="url" id="linkedin" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none transition bg-gray-50 focus:bg-white" placeholder="https://linkedin.com/in/johndoe" value="<%= savedData?.personalInfo?.linkedin || '' %>" oninput="markChanged()">
             </div>
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Professional Summary</label>
+          <div class="input-group">
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Professional Summary</label>
             <div class="relative">
-              <textarea id="summary" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition resize-none" placeholder="A brief overview of your professional background..."><%= savedData?.summary || '' %></textarea>
-              <button onclick="generateSummary()" class="absolute bottom-3 right-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:shadow-lg transition flex items-center gap-1">
-                <span>✨</span> Generate AI
+              <textarea id="summary" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none transition resize-none bg-gray-50 focus:bg-white" placeholder="Describe your professional background and key strengths..." oninput="markChanged()"><%= savedData?.summary || '' %></textarea>
+              <button onclick="generateSummary()" class="absolute bottom-3 right-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:shadow-lg transition flex items-center gap-1.5" id="summaryBtn">
+                <span>✨</span> Auto-Generate
               </button>
             </div>
-            <p class="text-gray-400 text-xs mt-1">Or click ✨ Generate AI to auto-create from your data</p>
+            <p class="text-gray-400 text-xs mt-1">Click ✨ to generate a compelling summary based on your profile</p>
           </div>
         </div>
       </div>
 
-      <!-- Step 2: Experience -->
+      <!-- STEP 2: Experience -->
       <div class="wizard-step hidden" id="step-2">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-          <h2 class="text-xl font-bold text-white">Work Experience</h2>
-          <p class="text-blue-100 text-sm mt-1">Add your professional history</p>
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 md:px-8 py-5">
+          <h2 class="text-lg md:text-xl font-bold text-white">💼 Work Experience</h2>
+          <p class="text-blue-100 text-sm mt-1">Add your career history</p>
         </div>
-        <div class="p-8">
-          <div id="experienceList" class="space-y-6"></div>
-          <button onclick="addExperience()" class="mt-6 w-full py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 font-semibold hover:bg-blue-50 transition flex items-center justify-center gap-2">
-            <span>+</span> Add Experience
+        <div class="p-6 md:p-8">
+          <div id="experienceList" class="space-y-5"></div>
+          <button onclick="addExperience()" class="mt-5 w-full py-3 border-2 border-dashed border-blue-400 rounded-xl text-blue-600 font-semibold hover:bg-blue-50 hover:border-blue-500 transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Position
           </button>
         </div>
       </div>
 
-      <!-- Step 3: Education -->
+      <!-- STEP 3: Education -->
       <div class="wizard-step hidden" id="step-3">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-          <h2 class="text-xl font-bold text-white">Education</h2>
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 md:px-8 py-5">
+          <h2 class="text-lg md:text-xl font-bold text-white">🎓 Education</h2>
           <p class="text-blue-100 text-sm mt-1">Your academic background</p>
         </div>
-        <div class="p-8">
-          <div id="educationList" class="space-y-6"></div>
-          <button onclick="addEducation()" class="mt-6 w-full py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 font-semibold hover:bg-blue-50 transition flex items-center justify-center gap-2">
-            <span>+</span> Add Education
+        <div class="p-6 md:p-8">
+          <div id="educationList" class="space-y-5"></div>
+          <button onclick="addEducation()" class="mt-5 w-full py-3 border-2 border-dashed border-blue-400 rounded-xl text-blue-600 font-semibold hover:bg-blue-50 hover:border-blue-500 transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Education
           </button>
         </div>
       </div>
 
-      <!-- Step 4: Skills -->
+      <!-- STEP 4: Skills -->
       <div class="wizard-step hidden" id="step-4">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-          <h2 class="text-xl font-bold text-white">Skills</h2>
-          <p class="text-blue-100 text-sm mt-1">Add your key competencies</p>
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 md:px-8 py-5">
+          <h2 class="text-lg md:text-xl font-bold text-white">🎯 Skills</h2>
+          <p class="text-blue-100 text-sm mt-1">What are you great at?</p>
         </div>
-        <div class="p-8">
+        <div class="p-6 md:p-8">
           <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Add Skills (comma separated or one per line)</label>
-            <textarea id="skillsInput" rows="6" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="JavaScript, React, Node.js, Python, Project Management, Leadership..."></textarea>
-            <p class="text-gray-400 text-xs mt-2">Tip: Add 8-12 skills that match the job you're applying for</p>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Add Skills</label>
+            <p class="text-gray-400 text-xs mb-2">Type skills separated by commas or press Enter</p>
+            <textarea id="skillsInput" rows="3" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition mb-3" placeholder="JavaScript, React, Node.js, Project Management..."></textarea>
+            <div id="skillsPreview" class="flex flex-wrap gap-2"></div>
+            <p class="text-gray-400 text-xs mt-2">💡 Tip: Add 8-12 skills relevant to your target job for best ATS match</p>
           </div>
-          <div id="skillsPreview" class="flex flex-wrap gap-2"></div>
+          
+          <!-- Quick skill suggestions -->
+          <div class="border rounded-lg p-4 bg-gray-50">
+            <p class="text-sm font-semibold text-gray-600 mb-2">Quick Add (click to add):</p>
+            <div class="flex flex-wrap gap-2" id="skillSuggestions">
+              <% const skills = ['JavaScript','Python','React','Node.js','SQL','AWS','Docker','Leadership','Communication','Problem Solving','Project Management','Agile','Data Analysis','Figma','TypeScript','GraphQL','MongoDB','Express']; %>
+              <% skills.forEach(s => { %>
+              <button onclick="addSkill('<%= s %>')" class="px-2.5 py-1 rounded-full border border-blue-200 text-blue-600 text-xs font-medium hover:bg-blue-100 transition"><%= s %></button>
+              <% }) %>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Step 5: Preview & Download -->
+      <!-- STEP 5: Preview & Download -->
       <div class="wizard-step hidden" id="step-5">
-        <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-6">
-          <h2 class="text-xl font-bold text-white">Ready to Download!</h2>
-          <p class="text-green-100 text-sm mt-1">Preview your CV and download as PDF</p>
+        <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 md:px-8 py-5">
+          <h2 class="text-lg md:text-xl font-bold text-white">🎉 Your CV is Ready!</h2>
+          <p class="text-green-100 text-sm mt-1">Preview and download your professional resume</p>
         </div>
-        <div class="p-8">
-          <div class="bg-gray-100 rounded-xl p-6 mb-6 text-center">
-            <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
+        <div class="p-6 md:p-8">
+          <div class="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 text-center border border-blue-100">
+            <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Your CV is Ready!</h3>
-            <p class="text-gray-600 mb-6">Preview below or download your professional resume</p>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">All set!</h3>
+            <p class="text-gray-600 mb-6">Your CV is crafted and ready to impress recruiters</p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onclick="previewCV()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-                Preview
+              <button onclick="previewCV()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md" id="previewBtn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                Preview CV
               </button>
-              <button onclick="downloadCV()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
+              <button onclick="downloadCV()" class="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-md" id="downloadBtn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 Download PDF
               </button>
             </div>
           </div>
-          <div id="previewContainer" class="hidden bg-white border rounded-xl overflow-hidden shadow-inner">
+          <div id="previewContainer" class="hidden mt-6 bg-white border-2 border-blue-200 rounded-xl overflow-hidden shadow-lg">
+            <div class="bg-gray-100 px-4 py-2 border-b text-xs text-gray-500 flex justify-between items-center">
+              <span>Preview</span>
+              <button onclick="document.getElementById('previewContainer').classList.add('hidden')" class="text-gray-400 hover:text-red-500">✕</button>
+            </div>
             <iframe id="previewFrame" class="w-full h-[600px] border-0"></iframe>
           </div>
         </div>
       </div>
 
-      <!-- Navigation Buttons -->
-      <div class="px-8 py-4 bg-gray-50 border-t flex justify-between items-center">
-        <button onclick="prevStep()" id="prevBtn" class="hidden px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition">
-          ← Previous
+      <!-- Navigation -->
+      <div class="px-6 md:px-8 py-4 bg-gray-50 border-t flex justify-between items-center">
+        <button onclick="prevStep()" id="prevBtn" class="hidden px-6 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          Back
         </button>
         <div class="flex gap-3">
-          <button onclick="saveDraft()" class="px-6 py-2.5 rounded-lg border border-blue-300 text-blue-600 font-medium hover:bg-blue-50 transition">
-            💾 Save Draft
+          <button onclick="saveDraftManual()" class="px-5 py-2.5 rounded-xl border border-blue-300 text-blue-600 font-medium hover:bg-blue-50 transition text-sm flex items-center gap-1.5" id="saveBtn">
+            💾 Save
           </button>
-          <button onclick="nextStep()" id="nextBtn" class="px-6 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
-            Next →
+          <button onclick="nextStep()" id="nextBtn" class="px-6 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition flex items-center gap-1 shadow-md">
+            Next
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Draft ID hidden -->
     <input type="hidden" id="draftId" value="<%= draftId || '' %>">
     <input type="hidden" id="template" value="<%= template %>">
+    <input type="hidden" id="savedData" value='<%- JSON.stringify(savedData || {}) %>'>
   </main>
 
   <script src="/js/wizard.js"></script>
