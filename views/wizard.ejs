@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV Wizard | CV Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 min-h-screen">
+
+  <!-- Header -->
+  <header class="py-4 px-8 border-b border-white/10">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <span class="text-white font-bold text-lg">CV Generator</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-blue-300 text-sm" id="templateLabel">Template: <span class="text-white font-semibold capitalize"><%= template.replace('ats-', '') %></span></span>
+        <a href="/" class="text-blue-300 hover:text-white text-sm transition">← Back</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-8 py-8">
+    
+    <!-- Progress Steps -->
+    <div class="mb-8">
+      <div class="flex items-center justify-center gap-2" id="progressBar">
+        <div class="step-item" data-step="1">
+          <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold text-sm border-2 border-blue-400">1</div>
+          <span class="text-blue-300 text-xs mt-1 block text-center">Personal</span>
+        </div>
+        <div class="w-12 h-0.5 bg-gray-600"></div>
+        <div class="step-item" data-step="2">
+          <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-400 flex items-center justify-center font-semibold text-sm border-2 border-gray-600">2</div>
+          <span class="text-gray-500 text-xs mt-1 block text-center">Experience</span>
+        </div>
+        <div class="w-12 h-0.5 bg-gray-600"></div>
+        <div class="step-item" data-step="3">
+          <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-400 flex items-center justify-center font-semibold text-sm border-2 border-gray-600">3</div>
+          <span class="text-gray-500 text-xs mt-1 block text-center">Education</span>
+        </div>
+        <div class="w-12 h-0.5 bg-gray-600"></div>
+        <div class="step-item" data-step="4">
+          <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-400 flex items-center justify-center font-semibold text-sm border-2 border-gray-600">4</div>
+          <span class="text-gray-500 text-xs mt-1 block text-center">Skills</span>
+        </div>
+        <div class="w-12 h-0.5 bg-gray-600"></div>
+        <div class="step-item" data-step="5">
+          <div class="w-10 h-10 rounded-full bg-gray-700 text-gray-400 flex items-center justify-center font-semibold text-sm border-2 border-gray-600">5</div>
+          <span class="text-gray-500 text-xs mt-1 block text-center">Summary</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wizard Forms -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+      
+      <!-- Step 1: Personal Info -->
+      <div class="wizard-step" id="step-1">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+          <h2 class="text-xl font-bold text-white">Personal Information</h2>
+          <p class="text-blue-100 text-sm mt-1">Tell us about yourself</p>
+        </div>
+        <div class="p-8 space-y-6">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+              <input type="text" id="fullName" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="John Doe" value="<%= savedData?.personalInfo?.fullName || '' %>">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Job Title *</label>
+              <input type="text" id="jobTitle" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="Software Engineer" value="<%= savedData?.personalInfo?.jobTitle || '' %>">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+              <input type="email" id="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="john@example.com" value="<%= savedData?.personalInfo?.email || '' %>">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+              <input type="tel" id="phone" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="+62 812-3456-7890" value="<%= savedData?.personalInfo?.phone || '' %>">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Location</label>
+              <input type="text" id="location" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="Jakarta, Indonesia" value="<%= savedData?.personalInfo?.location || '' %>">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">LinkedIn / Portfolio URL</label>
+              <input type="url" id="linkedin" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="https://linkedin.com/in/johndoe" value="<%= savedData?.personalInfo?.linkedin || '' %>">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Professional Summary</label>
+            <div class="relative">
+              <textarea id="summary" rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition resize-none" placeholder="A brief overview of your professional background..."><%= savedData?.summary || '' %></textarea>
+              <button onclick="generateSummary()" class="absolute bottom-3 right-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:shadow-lg transition flex items-center gap-1">
+                <span>✨</span> Generate AI
+              </button>
+            </div>
+            <p class="text-gray-400 text-xs mt-1">Or click ✨ Generate AI to auto-create from your data</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Experience -->
+      <div class="wizard-step hidden" id="step-2">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+          <h2 class="text-xl font-bold text-white">Work Experience</h2>
+          <p class="text-blue-100 text-sm mt-1">Add your professional history</p>
+        </div>
+        <div class="p-8">
+          <div id="experienceList" class="space-y-6"></div>
+          <button onclick="addExperience()" class="mt-6 w-full py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 font-semibold hover:bg-blue-50 transition flex items-center justify-center gap-2">
+            <span>+</span> Add Experience
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Education -->
+      <div class="wizard-step hidden" id="step-3">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+          <h2 class="text-xl font-bold text-white">Education</h2>
+          <p class="text-blue-100 text-sm mt-1">Your academic background</p>
+        </div>
+        <div class="p-8">
+          <div id="educationList" class="space-y-6"></div>
+          <button onclick="addEducation()" class="mt-6 w-full py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 font-semibold hover:bg-blue-50 transition flex items-center justify-center gap-2">
+            <span>+</span> Add Education
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Skills -->
+      <div class="wizard-step hidden" id="step-4">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+          <h2 class="text-xl font-bold text-white">Skills</h2>
+          <p class="text-blue-100 text-sm mt-1">Add your key competencies</p>
+        </div>
+        <div class="p-8">
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Add Skills (comma separated or one per line)</label>
+            <textarea id="skillsInput" rows="6" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition" placeholder="JavaScript, React, Node.js, Python, Project Management, Leadership..."></textarea>
+            <p class="text-gray-400 text-xs mt-2">Tip: Add 8-12 skills that match the job you're applying for</p>
+          </div>
+          <div id="skillsPreview" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+
+      <!-- Step 5: Preview & Download -->
+      <div class="wizard-step hidden" id="step-5">
+        <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-6">
+          <h2 class="text-xl font-bold text-white">Ready to Download!</h2>
+          <p class="text-green-100 text-sm mt-1">Preview your CV and download as PDF</p>
+        </div>
+        <div class="p-8">
+          <div class="bg-gray-100 rounded-xl p-6 mb-6 text-center">
+            <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Your CV is Ready!</h3>
+            <p class="text-gray-600 mb-6">Preview below or download your professional resume</p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <button onclick="previewCV()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                Preview
+              </button>
+              <button onclick="downloadCV()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Download PDF
+              </button>
+            </div>
+          </div>
+          <div id="previewContainer" class="hidden bg-white border rounded-xl overflow-hidden shadow-inner">
+            <iframe id="previewFrame" class="w-full h-[600px] border-0"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="px-8 py-4 bg-gray-50 border-t flex justify-between items-center">
+        <button onclick="prevStep()" id="prevBtn" class="hidden px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition">
+          ← Previous
+        </button>
+        <div class="flex gap-3">
+          <button onclick="saveDraft()" class="px-6 py-2.5 rounded-lg border border-blue-300 text-blue-600 font-medium hover:bg-blue-50 transition">
+            💾 Save Draft
+          </button>
+          <button onclick="nextStep()" id="nextBtn" class="px-6 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
+            Next →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Draft ID hidden -->
+    <input type="hidden" id="draftId" value="<%= draftId || '' %>">
+    <input type="hidden" id="template" value="<%= template %>">
+  </main>
+
+  <script src="/js/wizard.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= data.personalInfo?.fullName || 'CV' %> - Resume</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; line-height: 1.4; color: #1f2937; background: white; }
+    .cv-container { max-width: 800px; margin: 0 auto; padding: 40px; }
+    .header { border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 24px; }
+    .name { font-size: 28pt; font-weight: 800; color: #1f2937; letter-spacing: -0.5px; }
+    .title { font-size: 13pt; color: #2563eb; font-weight: 600; margin-top: 4px; }
+    .contact-info { margin-top: 12px; font-size: 10pt; color: #4b5563; }
+    .contact-info span { margin-right: 16px; }
+    .section { margin-bottom: 20px; }
+    .section-title { font-size: 12pt; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 12px; }
+    .experience-item, .education-item { margin-bottom: 14px; }
+    .exp-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .exp-title { font-weight: 700; font-size: 11pt; color: #1f2937; }
+    .exp-company { font-weight: 600; color: #4b5563; }
+    .exp-date { font-size: 10pt; color: #6b7280; font-style: italic; }
+    .exp-description { margin-top: 4px; font-size: 10.5pt; color: #374151; text-align: justify; }
+    .skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill-tag { background: #eff6ff; color: #2563eb; padding: 3px 10px; border-radius: 4px; font-size: 10pt; font-weight: 500; }
+    .summary { font-size: 10.5pt; color: #374151; text-align: justify; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+  <div class="cv-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="name"><%= data.personalInfo?.fullName || 'Your Name' %></div>
+      <div class="title"><%= data.personalInfo?.jobTitle || 'Professional' %></div>
+      <div class="contact-info">
+        <% if (data.personalInfo?.email) { %><span>✉ <%= data.personalInfo.email %></span><% } %>
+        <% if (data.personalInfo?.phone) { %><span>📞 <%= data.personalInfo.phone %></span><% } %>
+        <% if (data.personalInfo?.location) { %><span>📍 <%= data.personalInfo.location %></span><% } %>
+        <% if (data.personalInfo?.linkedin) { %><span>🔗 <%= data.personalInfo.linkedin %></span><% } %>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <% if (data.summary) { %>
+    <div class="section">
+      <div class="section-title">Professional Summary</div>
+      <div class="summary"><%= data.summary %></div>
+    </div>
+    <% } %>
+
+    <!-- Experience -->
+    <% if (data.experience && data.experience.length > 0) { %>
+    <div class="section">
+      <div class="section-title">Professional Experience</div>
+      <% data.experience.forEach(exp => { %>
+      <div class="experience-item">
+        <div class="exp-header">
+          <div>
+            <span class="exp-title"><%= exp.jobTitle %></span> — 
+            <span class="exp-company"><%= exp.company %></span>
+          </div>
+          <span class="exp-date"><%= exp.startDate %> — <%= exp.endDate || 'Present' %></span>
+        </div>
+        <div class="exp-description"><%= exp.description %></div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <!-- Education -->
+    <% if (data.education && data.education.length > 0) { %>
+    <div class="section">
+      <div class="section-title">Education</div>
+      <% data.education.forEach(edu => { %>
+      <div class="education-item">
+        <div class="exp-header">
+          <div>
+            <span class="exp-title"><%= edu.degree %></span> — 
+            <span class="exp-company"><%= edu.institution %></span>
+          </div>
+          <span class="exp-date"><%= edu.year %></span>
+        </div>
+        <% if (edu.description) { %>
+        <div class="exp-description"><%= edu.description %></div>
+        <% } %>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <!-- Skills -->
+    <% if (data.skills && data.skills.length > 0) { %>
+    <div class="section">
+      <div class="section-title">Skills</div>
+      <div class="skills-list">
+        <% data.skills.forEach(skill => { %>
+        <span class="skill-tag"><%= skill %></span>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</body>
+</html>

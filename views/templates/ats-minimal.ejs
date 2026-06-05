@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= data.personalInfo?.fullName || 'CV' %> - Resume</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #222; background: white; }
+    .cv-container { max-width: 800px; margin: 0 auto; padding: 48px; }
+    .name { font-size: 22pt; font-weight: 300; color: #000; letter-spacing: 1px; margin-bottom: 8px; }
+    .meta { font-size: 10pt; color: #555; margin-bottom: 20px; }
+    .meta span:not(:last-child)::after { content: " · "; color: #999; }
+    .section { margin-bottom: 24px; }
+    .section-title { font-size: 10pt; font-weight: 700; color: #000; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+    .experience-item { margin-bottom: 14px; }
+    .exp-line { display: flex; justify-content: space-between; margin-bottom: 2px; }
+    .exp-title { font-weight: 600; }
+    .exp-date { color: #666; }
+    .exp-desc { color: #444; font-size: 10pt; }
+    .skills { color: #444; font-size: 10pt; }
+    .summary { color: #444; font-size: 10.5pt; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+  <div class="cv-container">
+    <div class="name"><%= data.personalInfo?.fullName || 'Your Name' %></div>
+    <div class="meta">
+      <% if (data.personalInfo?.jobTitle) { %><span><%= data.personalInfo.jobTitle %></span><% } %>
+      <% if (data.personalInfo?.email) { %><span><%= data.personalInfo.email %></span><% } %>
+      <% if (data.personalInfo?.phone) { %><span><%= data.personalInfo.phone %></span><% } %>
+      <% if (data.personalInfo?.location) { %><span><%= data.personalInfo.location %></span><% } %>
+      <% if (data.personalInfo?.linkedin) { %><span><%= data.personalInfo.linkedin %></span><% } %>
+    </div>
+
+    <% if (data.summary) { %>
+    <div class="section">
+      <div class="section-title">Summary</div>
+      <div class="summary"><%= data.summary %></div>
+    </div>
+    <% } %>
+
+    <% if (data.experience && data.experience.length > 0) { %>
+    <div class="section">
+      <div class="section-title">Experience</div>
+      <% data.experience.forEach(exp => { %>
+      <div class="experience-item">
+        <div class="exp-line">
+          <span class="exp-title"><%= exp.jobTitle %>, <%= exp.company %></span>
+          <span class="exp-date"><%= exp.startDate %> — <%= exp.endDate || 'Present' %></span>
+        </div>
+        <div class="exp-desc"><%= exp.description %></div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <% if (data.education && data.education.length > 0) { %>
+    <div class="section">
+      <div class="section-title">Education</div>
+      <% data.education.forEach(edu => { %>
+      <div class="experience-item">
+        <div class="exp-line">
+          <span class="exp-title"><%= edu.degree %>, <%= edu.institution %></span>
+          <span class="exp-date"><%= edu.year %></span>
+        </div>
+        <% if (edu.description) { %><div class="exp-desc"><%= edu.description %></div><% } %>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <% if (data.skills && data.skills.length > 0) { %>
+    <div class="section">
+      <div class="section-title">Skills</div>
+      <div class="skills"><%= data.skills.join(', ') %></div>
+    </div>
+    <% } %>
+  </div>
+</body>
+</html>

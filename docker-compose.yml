@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  cv-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cv-generator
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      - PORT=8083
+      - NODE_ENV=production
+      - DB_PATH=/app/db/cvgenerator.db
+    volumes:
+      - ./db:/app/db
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8083/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
