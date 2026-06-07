@@ -1,0 +1,82 @@
+# Standard Issue Labels for CV Generator
+# Auto-synced via GitHub API or actions/labeler
+
+- name: "bug"
+  color: "d73a4a"
+  description: "Something isn't working"
+
+- name: "documentation"
+  color: "0075ca"
+  description: "Improvements or additions to documentation"
+
+- name: "duplicate"
+  color: "cfd3d7"
+  description: "This issue or pull request already exists"
+
+- name: "enhancement"
+  color: "a22eeef"
+  description: "New feature or request"
+
+- name: "feature"
+  color: "0e8a16"
+  description: "New feature implementation"
+
+- name: "good first issue"
+  color: "7057ff"
+  description: "Good for newcomers"
+
+- name: "help wanted"
+  color: "008672"
+  description: "Extra attention is needed"
+
+- name: "invalid"
+  color: "e4e669"
+  description: "This doesn't seem right"
+
+- name: "question"
+  color: "d876e3"
+  description: "Further information is requested"
+
+- name: "wontfix"
+  color: "ffffff"
+  description: "This will not be worked on"
+
+- name: "security"
+  color: "b60205"
+  description: "Security vulnerability or concern"
+
+- name: "dependencies"
+  color: "0366d6"
+  description: "Pull requests that update a dependency file"
+
+- name: "ci/cd"
+  color: "1d76db"
+  description: "Changes to CI/CD pipelines"
+
+- name: "performance"
+  color: "fbca04"
+  description: "Performance improvement"
+
+- name: "refactor"
+  color: "c5def5"
+  description: "Code refactoring"
+
+- name: "testing"
+  color: "bfdadc"
+  description: "Adding or improving tests"
+
+- name: "ui/ux"
+  color: "fef2c0"
+  description: "UI/UX related changes"
+
+- name: "ai"
+  color: "5319e7"
+  description: "AI/ML related features or changes"
+
+- name: "docker"
+  color: "0d419d"
+  description: "Docker-related changes"
+
+- name: "breaking-change"
+  color: "d93f0b"
+  description: "Introduces a breaking change"

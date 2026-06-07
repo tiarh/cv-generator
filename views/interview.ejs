@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Prep - CV Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>body{font-family:'Inter',sans-serif;}</style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 min-h-screen">
+
+  <header class="py-6 px-4 md:px-8 border-b border-white/10">
+    <div class="max-w-5xl mx-auto flex items-center gap-4">
+      <a href="/" class="text-blue-200 hover:text-white font-medium text-sm flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back
+      </a>
+      <div class="w-px h-6 bg-white/20"></div>
+      <h1 class="text-white font-bold text-xl">Interview Prep</h1>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 md:px-8 py-10">
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="bg-red-500/20 border border-red-400/30 text-red-200 px-4 py-3 rounded-xl mb-6"><%= error %></div>
+    <% } %>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Generate Form -->
+      <div class="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
+        <h2 class="text-white font-bold text-lg mb-4">Generate Questions</h2>
+        <form action="/interview-prep/generate" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">Company</label>
+            <input type="text" name="company" required placeholder="e.g. Google, Stripe, Tokopedia"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-blue-200/40 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition">
+          </div>
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">Position / Job Title</label>
+            <input type="text" name="position" required placeholder="e.g. Senior Frontend Engineer"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-blue-200/40 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition">
+          </div>
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">Your CV Data (optional JSON)</label>
+            <textarea name="cvData" rows="4" placeholder='{"personalInfo":{"fullName":"..."},"experience":[{...}]}'
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-blue-200/40 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition text-sm font-mono resize-none"></textarea>
+          </div>
+          <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-500/25">
+            Generate Questions
+          </button>
+        </form>
+      </div>
+
+      <!-- Results -->
+      <div class="space-y-4">
+        <% if (result && result.questions && result.questions.length > 0) { %>
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-white font-bold text-lg">Questions for <%= result.position %> at <%= result.company %></h2>
+              <span class="text-blue-300 text-sm font-medium"><%= result.questions.length %> questions</span>
+            </div>
+            <div class="space-y-3">
+              <% result.questions.forEach(function(q, i) { %>
+                <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <div class="flex items-start gap-3">
+                    <span class="w-6 h-6 bg-blue-500/30 rounded-full flex items-center justify-center text-blue-300 text-xs font-bold flex-shrink-0 mt-0.5"><%= i + 1 %></span>
+                    <div class="flex-1">
+                      <p class="text-white text-sm font-medium mb-2"><%= q.question %></p>
+                      <span class="inline-block text-xs px-2 py-0.5 rounded-full <% if (q.type === 'behavioral') { %>bg-purple-500/20 text-purple-300<% } else if (q.type === 'technical') { %>bg-green-500/20 text-green-300<% } else { %>bg-blue-500/20 text-blue-300<% } %>"><%= q.type %></span>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="bg-white/5 rounded-2xl p-8 border border-white/10 text-center">
+            <svg class="w-12 h-12 text-blue-400/40 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            <p class="text-blue-200/50 text-sm">Enter a company and position to generate interview questions</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Past Sessions -->
+    <% if (sessions && sessions.length > 0) { %>
+    <div class="mt-8">
+      <h3 class="text-white font-bold text-lg mb-4">Past Sessions</h3>
+      <div class="space-y-2">
+        <% sessions.forEach(function(s) { %>
+          <div class="bg-white/5 rounded-xl px-4 py-3 border border-white/10 flex items-center justify-between">
+            <div>
+              <span class="text-white font-medium text-sm"><%= s.position %> at <%= s.company %></span>
+              <span class="text-blue-200/50 text-xs ml-3"><%= new Date(s.createdAt).toLocaleDateString() %></span>
+            </div>
+            <span class="text-blue-300 text-xs"><%= s.questions ? s.questions.length : 0 %> questions</span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+  </main>
+
+</body>
+</html>

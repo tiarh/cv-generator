@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skills Gap Analysis - CV Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>body{font-family:'Inter',sans-serif;}</style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 min-h-screen">
+
+  <header class="py-6 px-4 md:px-8 border-b border-white/10">
+    <div class="max-w-5xl mx-auto flex items-center gap-4">
+      <a href="/" class="text-blue-200 hover:text-white font-medium text-sm flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back
+      </a>
+      <div class="w-px h-6 bg-white/20"></div>
+      <h1 class="text-white font-bold text-xl">Skills Gap Analysis</h1>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 md:px-8 py-10">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="bg-red-500/20 border border-red-400/30 text-red-200 px-4 py-3 rounded-xl mb-6"><%= error %></div>
+    <% } %>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Analyze Form -->
+      <div class="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
+        <h2 class="text-white font-bold text-lg mb-4">Analyze Skills Gap</h2>
+        <form action="/skills-gap/analyze" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">Target Job Title</label>
+            <input type="text" name="targetJob" required placeholder="e.g. Senior Frontend Engineer, Product Manager"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-blue-200/40 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition">
+          </div>
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">Your Current Skills (comma-separated)</label>
+            <textarea name="currentSkills" rows="5" required placeholder="e.g. JavaScript, React, Node.js, Python, SQL, Git"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-blue-200/40 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition resize-none"></textarea>
+          </div>
+          <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-500/25">
+            Analyze Gap
+          </button>
+        </form>
+      </div>
+
+      <!-- Results -->
+      <div class="space-y-4">
+        <% if (result) { %>
+          <!-- Match Score -->
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-white font-semibold">Skills Match Score</span>
+              <span class="text-3xl font-bold <%= (result.matchScore || 0) >= 70 ? 'text-green-400' : (result.matchScore || 0) >= 40 ? 'text-yellow-400' : 'text-red-400' %>"><%= result.matchScore || 0 %>%</span>
+            </div>
+            <div class="w-full bg-white/10 rounded-full h-2.5 mt-2">
+              <div class="h-2.5 rounded-full <%= (result.matchScore || 0) >= 70 ? 'bg-green-400' : (result.matchScore || 0) >= 40 ? 'bg-yellow-400' : 'bg-red-400' %>" style="width: <%= result.matchScore || 0 %>%"></div>
+            </div>
+          </div>
+
+          <!-- You Have -->
+          <% if (result.matchedSkills && result.matchedSkills.length > 0) { %>
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/10">
+            <h3 class="text-green-400 font-semibold text-sm mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Skills You Have
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              <% result.matchedSkills.forEach(function(skill) { %>
+                <span class="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs font-medium border border-green-400/30"><%= skill %></span>
+              <% }); %>
+            </div>
+          </div>
+          <% } %>
+
+          <!-- Gap -->
+          <% if (result.gapSkills && result.gapSkills.length > 0) { %>
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/10">
+            <h3 class="text-red-400 font-semibold text-sm mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              Skills Gap — Learn These
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              <% result.gapSkills.forEach(function(skill) { %>
+                <span class="bg-red-500/20 text-red-300 px-3 py-1 rounded-full text-xs font-medium border border-red-400/30"><%= skill %></span>
+              <% }); %>
+            </div>
+          </div>
+          <% } %>
+
+          <!-- Recommendations -->
+          <% if (result.recommendations && result.recommendations.length > 0) { %>
+          <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/10">
+            <h3 class="text-blue-400 font-semibold text-sm mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              Recommendations
+            </h3>
+            <ul class="space-y-2">
+              <% result.recommendations.forEach(function(rec) { %>
+                <li class="text-blue-200/80 text-sm flex items-start gap-2">
+                  <span class="text-blue-400 mt-1">→</span>
+                  <span><%= rec %></span>
+                </li>
+              <% }); %>
+            </ul>
+          </div>
+          <% } %>
+        <% } else { %>
+          <div class="bg-white/5 rounded-2xl p-8 border border-white/10 text-center">
+            <svg class="w-12 h-12 text-blue-400/40 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <p class="text-blue-200/50 text-sm">Enter a target job and your skills to see the gap analysis</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Past Analyses -->
+    <% if (analyses && analyses.length > 0) { %>
+    <div class="mt-8">
+      <h3 class="text-white font-bold text-lg mb-4">Past Analyses</h3>
+      <div class="space-y-2">
+        <% analyses.forEach(function(a) { %>
+          <div class="bg-white/5 rounded-xl px-4 py-3 border border-white/10 flex items-center justify-between">
+            <div>
+              <span class="text-white font-medium text-sm"><%= a.targetJob %></span>
+              <span class="text-blue-200/50 text-xs ml-3"><%= new Date(a.createdAt).toLocaleDateString() %></span>
+            </div>
+            <span class="text-blue-300 text-xs"><%= a.currentSkills ? a.currentSkills.length : 0 %> skills analyzed</span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+  </main>
+
+</body>
+</html>

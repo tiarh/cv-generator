@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cover Letter Generator - CV Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>body{font-family:'Inter',sans-serif;}</style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 min-h-screen">
+
+  <header class="py-6 px-4 md:px-8 border-b border-white/10">
+    <div class="max-w-5xl mx-auto flex items-center gap-4">
+      <a href="/" class="text-blue-200 hover:text-white font-medium text-sm flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back
+      </a>
+      <div class="w-px h-6 bg-white/20"></div>
+      <h1 class="text-white font-bold text-xl">Cover Letter Generator</h1>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 md:px-8 py-10">
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Generate Form -->
+      <div class="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
+        <h2 class="text-white font-bold text-lg mb-4">Generate Cover Letter</h2>
+        <form id="coverLetterForm" class="space-y-4">
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">Company Name</label>
+            <input type="text" id="companyName" required placeholder="e.g. Google, Tokopedia, Gojek"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-blue-200/40 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition">
+          </div>
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">Position</label>
+            <input type="text" id="position" required placeholder="e.g. Senior Frontend Engineer"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-blue-200/40 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition">
+          </div>
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">Tone</label>
+            <select id="tone"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-400 transition">
+              <option value="formal" class="text-gray-900">Formal</option>
+              <option value="friendly" class="text-gray-900">Friendly</option>
+              <option value="creative" class="text-gray-900">Creative</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-blue-200 text-sm font-medium mb-1.5">CV Data (JSON — optional, uses draft if empty)</label>
+            <textarea id="cvData" rows="4" placeholder='{"personalInfo":{...},"experience":[{...}]}'
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-blue-200/40 focus:outline-none focus:border-blue-400 focus:bg-white/15 transition text-sm font-mono resize-none"></textarea>
+          </div>
+          <button type="submit" id="generateBtn"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2">
+            <span id="generateText">Generate Letter</span>
+            <svg id="generateSpinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- Generated Output -->
+      <div class="bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/10">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-white font-bold text-lg">Generated Letter</h2>
+          <span id="sourceTag" class="hidden text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-300"></span>
+        </div>
+        <div id="letterContent" class="text-blue-100/70 text-sm whitespace-pre-wrap leading-relaxed min-h-[200px]">
+          <p class="italic text-blue-200/40">Your generated cover letter will appear here...</p>
+        </div>
+        <div id="letterActions" class="hidden mt-4 flex flex-col gap-2">
+          <button id="copyClipboard" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            Copy to Clipboard
+          </button>
+          <button id="downloadPdf" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Download PDF
+          </button>
+          <button id="downloadDocx" class="w-full bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-semibold transition border border-white/20">
+            Download DOCX
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drafts -->
+    <% if (drafts && drafts.length > 0) { %>
+    <div class="mt-8">
+      <h3 class="text-white font-bold text-lg mb-4">Use a Saved Draft</h3>
+      <div class="grid md:grid-cols-3 gap-3">
+        <% drafts.forEach(function(d) { %>
+          <button onclick="loadDraft('<%= d.id %>')"
+            class="bg-white/5 rounded-xl p-4 border border-white/10 text-left hover:border-blue-400/30 transition">
+            <p class="text-white text-sm font-medium truncate"><%= d.data && d.data.personalInfo ? d.data.personalInfo.fullName : 'Untitled Draft' %></p>
+            <p class="text-blue-200/50 text-xs mt-1"><%= new Date(d.updated_at || d.updatedAt).toLocaleDateString() %></p>
+          </button>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+  </main>
+
+<script>
+let currentLetter = '';
+let currentData = {};
+
+document.getElementById('coverLetterForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const generateBtn = document.getElementById('generateBtn');
+  const generateText = document.getElementById('generateText');
+  const spinner = document.getElementById('generateSpinner');
+
+  generateBtn.disabled = true;
+  generateText.textContent = 'Generating...';
+  spinner.classList.remove('hidden');
+
+  const cvDataRaw = document.getElementById('cvData').value.trim();
+  let cvData = {};
+  if (cvDataRaw) {
+    try { cvData = JSON.parse(cvDataRaw); } catch(e) { alert('Invalid JSON'); }
+  }
+
+  currentData = cvData;
+
+  try {
+    const res = await fetch('/api/cover-letter/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        data: cvData,
+        companyName: document.getElementById('companyName').value,
+        position: document.getElementById('position').value,
+        tone: document.getElementById('tone').value
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      currentLetter = json.content;
+      document.getElementById('letterContent').innerHTML = '';
+      const p = document.createElement('p');
+      p.className = 'text-blue-100 whitespace-pre-wrap leading-relaxed';
+      p.textContent = json.content;
+      document.getElementById('letterContent').appendChild(p);
+      document.getElementById('sourceTag').textContent = 'via ' + (json.source === 'ai' ? 'AI ✨' : 'template 📄');
+      document.getElementById('sourceTag').classList.remove('hidden');
+      document.getElementById('letterActions').classList.remove('hidden');
+    } else {
+      document.getElementById('letterContent').innerHTML = '<p class="text-red-300">Error: ' + (json.error || 'Generation failed') + '</p>';
+    }
+  } catch(err) {
+    document.getElementById('letterContent').innerHTML = '<p class="text-red-300">Error: ' + err.message + '</p>';
+  } finally {
+    generateBtn.disabled = false;
+    generateText.textContent = 'Generate Letter';
+    spinner.classList.add('hidden');
+  }
+});
+
+document.getElementById('downloadPdf').addEventListener('click', async () => {
+  if (!currentLetter) return;
+  try {
+    const res = await fetch('/api/cover-letter/download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        data: currentData,
+        companyName: document.getElementById('companyName').value,
+        position: document.getElementById('position').value,
+        tone: document.getElementById('tone').value,
+        content: currentLetter
+      })
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Cover_Letter.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(err) { alert('PDF download failed: ' + err.message); }
+});
+
+async function loadDraft(id) {
+  try {
+    const res = await fetch('/api/draft/' + id);
+    const json = await res.json();
+    if (json.data) {
+      document.getElementById('cvData').value = JSON.stringify(json.data, null, 2);
+    }
+  } catch(e) {}
+}
+
+document.getElementById('copyClipboard').addEventListener('click', () => {
+  if (!currentLetter) return;
+  navigator.clipboard.writeText(currentLetter).then(() => {
+    const btn = document.getElementById('copyClipboard');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Copied!';
+    btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+    btn.classList.add('bg-green-600', 'hover:bg-green-700');
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+      btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+    }, 2000);
+  }).catch(err => {
+    alert('Copy failed: ' + err.message);
+  });
+});
+</script>
+
+</body>
+</html>
